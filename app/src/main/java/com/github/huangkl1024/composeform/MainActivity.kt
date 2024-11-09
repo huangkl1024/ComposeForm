@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,13 +25,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.github.huangkl1024.composeform.component.EditableSelect
 import com.github.huangkl1024.composeform.component.OutlinedPasswordField
+import com.github.huangkl1024.composeform.component.Select
+import com.github.huangkl1024.composeform.component.SelectOption
 import com.github.huangkl1024.composeform.core.Form
 import com.github.huangkl1024.composeform.core.FormField
 import com.github.huangkl1024.composeform.ui.theme.ComposeFormTheme
 import com.github.huangkl1024.composeform.vaidator.EmailValidator
 import com.github.huangkl1024.composeform.vaidator.MinLengthValidator
 import com.github.huangkl1024.composeform.vaidator.NotBlankValidator
+import com.github.huangkl1024.composeform.vaidator.NotNullValidator
+import java.util.stream.Collectors
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,6 +59,43 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+
+enum class Sex(val code: Int, val desc: String) {
+    MALE(1, "Male"),
+    FEMALE(0, "Female")
+}
+
+class SexSelectOption(val sex: Sex) : SelectOption {
+    override fun getShowValue(): String {
+        return sex.desc
+    }
+}
+
+val sexSelectOptions: MutableList<SexSelectOption> = Sex.entries.stream()
+    .map { SexSelectOption(it) }
+    .collect(Collectors.toList())
+
+
+enum class Hobby(val code: Int, val desc: String) {
+    SWIMMING(0, "Swimming"),
+    RUNNING(1, "Running"),
+    SING(2, "Sing"),
+    ROPE_SKIPPING(3, "Rope skipping"),
+    SHOOTING(4, "Shooting")
+}
+
+
+class HobbySelectOption(val hobby: Hobby) : SelectOption {
+    override fun getShowValue(): String {
+        return hobby.desc
+    }
+}
+
+val hobbySelectOptions: MutableList<HobbySelectOption> = Hobby.entries.stream()
+    .map { HobbySelectOption(it) }
+    .collect(Collectors.toList())
+
 
 class TestForm : Form() {
     val firstName = FormField(
@@ -83,7 +126,23 @@ class TestForm : Form() {
         )
     )
 
-    private val fields: List<FormField<*>> = mutableListOf(firstName, lastName, email, password)
+    val sex = FormField<SexSelectOption>(
+        value = mutableStateOf(null),
+        validators = mutableListOf(
+            NotNullValidator(),
+        )
+    )
+
+    val hobby = FormField<HobbySelectOption>(
+        value = mutableStateOf(null),
+        validators = mutableListOf(
+            NotNullValidator(),
+        )
+    )
+
+    private val fields: List<FormField<*>> =
+        mutableListOf(firstName, lastName, email, password, sex, hobby)
+
     override fun fields(): List<FormField<*>> {
         return fields
     }
@@ -103,7 +162,7 @@ fun FormPage() {
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
             ) {
-                Column {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     FormItem(field = form.firstName) {
                         OutlinedTextField(
                             label = { Text("First name") },
@@ -145,6 +204,35 @@ fun FormPage() {
                         OutlinedPasswordField(
                             label = { Text("Password") },
                             value = value ?: "",
+                            onValueChange = onValueChange,
+                            isError = isError,
+                            enabled = enabled,
+                            supportingText = defaultErrorText(),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    FormItem(field = form.sex) {
+                        Select(
+                            label = { Text("Sex") },
+                            options = sexSelectOptions,
+                            value = value,
+                            onValueChange = onValueChange,
+                            isError = isError,
+                            enabled = enabled,
+                            supportingText = defaultErrorText(),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    FormItem(field = form.hobby) {
+                        EditableSelect(
+                            label = { Text("Hobby") },
+                            options = hobbySelectOptions,
+                            optionsFilter = { options, text ->
+                                options.stream()
+                                    .filter { it.getShowValue().lowercase().contains(text.lowercase()) }
+                                    .collect(Collectors.toList())
+                            },
+                            value = value,
                             onValueChange = onValueChange,
                             isError = isError,
                             enabled = enabled,
