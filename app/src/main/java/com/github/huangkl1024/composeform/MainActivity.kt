@@ -25,17 +25,23 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.github.huangkl1024.composeform.component.EditableSelect
+import com.github.huangkl1024.composeform.component.OutlinedDatePicker
 import com.github.huangkl1024.composeform.component.OutlinedPasswordField
-import com.github.huangkl1024.composeform.component.Select
+import com.github.huangkl1024.composeform.component.OutlinedSelect
+import com.github.huangkl1024.composeform.component.OutlinedTimePicker
+import com.github.huangkl1024.composeform.component.SearchOutlinedSelect
 import com.github.huangkl1024.composeform.component.SelectOption
 import com.github.huangkl1024.composeform.core.Form
 import com.github.huangkl1024.composeform.core.FormField
+import com.github.huangkl1024.composeform.formatter.fomatDateShort
+import com.github.huangkl1024.composeform.formatter.formatTime
 import com.github.huangkl1024.composeform.ui.theme.ComposeFormTheme
 import com.github.huangkl1024.composeform.vaidator.EmailValidator
 import com.github.huangkl1024.composeform.vaidator.MinLengthValidator
 import com.github.huangkl1024.composeform.vaidator.NotBlankValidator
 import com.github.huangkl1024.composeform.vaidator.NotNullValidator
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 import java.util.stream.Collectors
 
 class MainActivity : ComponentActivity() {
@@ -140,8 +146,22 @@ class TestForm : Form() {
         )
     )
 
+    val birthday = FormField<LocalDate>(
+        value = mutableStateOf(null),
+        validators = mutableListOf(
+            NotNullValidator(),
+        )
+    )
+
+    val time = FormField<LocalTime>(
+        value = mutableStateOf(null),
+        validators = mutableListOf(
+            NotNullValidator(),
+        )
+    )
+
     private val fields: List<FormField<*>> =
-        mutableListOf(firstName, lastName, email, password, sex, hobby)
+        mutableListOf(firstName, lastName, email, password, sex, hobby, birthday, time)
 
     override fun fields(): List<FormField<*>> {
         return fields
@@ -212,7 +232,7 @@ fun FormPage() {
                         )
                     }
                     FormItem(field = form.sex) {
-                        Select(
+                        OutlinedSelect(
                             label = { Text("Sex") },
                             options = sexSelectOptions,
                             value = value,
@@ -224,7 +244,7 @@ fun FormPage() {
                         )
                     }
                     FormItem(field = form.hobby) {
-                        EditableSelect(
+                        SearchOutlinedSelect(
                             label = { Text("Hobby") },
                             options = hobbySelectOptions,
                             optionsFilter = { options, text ->
@@ -234,6 +254,30 @@ fun FormPage() {
                             },
                             value = value,
                             onValueChange = onValueChange,
+                            isError = isError,
+                            enabled = enabled,
+                            supportingText = defaultErrorText(),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    FormItem(field = form.birthday) {
+                        OutlinedDatePicker(
+                            label = { Text("Birthday") },
+                            value = value,
+                            onValueChange = onValueChange,
+                            dateFormat = ::fomatDateShort,
+                            isError = isError,
+                            enabled = enabled,
+                            supportingText = defaultErrorText(),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    FormItem(field = form.time) {
+                        OutlinedTimePicker(
+                            label = { Text("Time") },
+                            value = value,
+                            onValueChange = onValueChange,
+                            timeFormat = ::formatTime,
                             isError = isError,
                             enabled = enabled,
                             supportingText = defaultErrorText(),

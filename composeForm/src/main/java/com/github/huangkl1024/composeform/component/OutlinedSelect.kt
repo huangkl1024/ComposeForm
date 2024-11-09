@@ -36,7 +36,7 @@ interface SelectOption {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun <T : SelectOption> Select(
+fun <T : SelectOption> OutlinedSelect(
     label: @Composable () -> Unit,
     options: List<T>,
     value: SelectOption?,
@@ -136,7 +136,7 @@ fun <T : SelectOption> toTextField(option: T?): TextFieldValue {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun <T : SelectOption> EditableSelect(
+fun <T : SelectOption> SearchOutlinedSelect(
     label: @Composable () -> Unit,
     options: List<T>,
     optionsFilter: (List<T>, String) -> List<T>,
