@@ -24,9 +24,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.github.huangkl1024.composeform.component.OutlinedPasswordField
 import com.github.huangkl1024.composeform.core.Form
 import com.github.huangkl1024.composeform.core.FormField
 import com.github.huangkl1024.composeform.ui.theme.ComposeFormTheme
+import com.github.huangkl1024.composeform.vaidator.EmailValidator
+import com.github.huangkl1024.composeform.vaidator.MinLengthValidator
 import com.github.huangkl1024.composeform.vaidator.NotBlankValidator
 
 class MainActivity : ComponentActivity() {
@@ -52,14 +55,35 @@ class MainActivity : ComponentActivity() {
 }
 
 class TestForm : Form() {
-    val name = FormField(
+    val firstName = FormField(
         value = mutableStateOf(""),
         validators = mutableListOf(
             NotBlankValidator()
         )
     )
 
-    private val fields: List<FormField<*>> = mutableListOf(name)
+    val lastName = FormField(
+        value = mutableStateOf(""),
+        enabled = mutableStateOf(false)
+    )
+
+    val email = FormField(
+        value = mutableStateOf(""),
+        validators = mutableListOf(
+            NotBlankValidator(),
+            EmailValidator()
+        )
+    )
+
+    val password = FormField(
+        value = mutableStateOf(""),
+        validators = mutableListOf(
+            NotBlankValidator(),
+            MinLengthValidator(minLength = 8)
+        )
+    )
+
+    private val fields: List<FormField<*>> = mutableListOf(firstName, lastName, email, password)
     override fun fields(): List<FormField<*>> {
         return fields
     }
@@ -80,15 +104,51 @@ fun FormPage() {
                     .verticalScroll(rememberScrollState())
             ) {
                 Column {
-                    FormItem(field = form.name) {
+                    FormItem(field = form.firstName) {
                         OutlinedTextField(
-                            label = { Text("名称") },
+                            label = { Text("First name") },
                             value = value ?: "",
                             onValueChange = onValueChange,
                             isError = isError,
+                            enabled = enabled,
                             supportingText = errorText {
                                 Text(errorMessage, color = MaterialTheme.colorScheme.error)
                             },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    FormItem(field = form.lastName) {
+                        OutlinedTextField(
+                            label = { Text("Last name") },
+                            value = value ?: "",
+                            onValueChange = onValueChange,
+                            isError = isError,
+                            enabled = enabled,
+                            supportingText = errorText {
+                                Text(errorMessage, color = MaterialTheme.colorScheme.error)
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    FormItem(field = form.email) {
+                        OutlinedTextField(
+                            label = { Text("Email") },
+                            value = value ?: "",
+                            onValueChange = onValueChange,
+                            isError = isError,
+                            enabled = enabled,
+                            supportingText = defaultErrorText(),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    FormItem(field = form.password) {
+                        OutlinedPasswordField(
+                            label = { Text("Password") },
+                            value = value ?: "",
+                            onValueChange = onValueChange,
+                            isError = isError,
+                            enabled = enabled,
+                            supportingText = defaultErrorText(),
                             modifier = Modifier.fillMaxWidth()
                         )
                     }

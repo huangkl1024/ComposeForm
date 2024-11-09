@@ -30,6 +30,7 @@ abstract class Form {
 
 class FormField<T>(
     val value: MutableState<T?>,
+    val enabled: MutableState<Boolean> = mutableStateOf(true),
     private val validators: List<FormFieldValidator<T>> = emptyList(),
 ) {
     var isError: MutableState<Boolean> = mutableStateOf(false)
@@ -50,7 +51,7 @@ class FormField<T>(
             if (!it.validate(newValue)) {
                 errorMessage.value = it.errorMessage
                 isError.value = true
-                return@forEach
+                return false
             }
         }
         return !isError.value

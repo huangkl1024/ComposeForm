@@ -1,5 +1,7 @@
 package com.github.huangkl1024.composeform.core
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -26,6 +28,7 @@ class FormItemScope<T>(field: FormField<T>) {
     var value by field.value
     val onValueChange: (T?) -> Unit = field.onValueChange
     val isError by field.isError
+    val enabled by field.enabled
     private val errorMessage: String? by field.errorMessage
 
     @Composable
@@ -37,6 +40,13 @@ class FormItemScope<T>(field: FormField<T>) {
             }
         }
         return null
+    }
+
+    @Composable
+    fun defaultErrorText(): (@Composable () -> Unit)? {
+        return errorText {
+            Text(errorMessage, color = MaterialTheme.colorScheme.error)
+        }
     }
 }
 
