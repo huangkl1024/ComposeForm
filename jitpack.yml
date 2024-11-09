@@ -2,4 +2,5 @@ jdk:
   - openjdk17
 install:
   - echo "Running a custom install command"
+  - chmod +x gradlew
   - ./gradlew composeForm:publishToMavenLocal
