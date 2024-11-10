@@ -42,7 +42,8 @@ fun OutlinedDatePicker(
     supportingText: @Composable (() -> Unit)? = null,
     label: @Composable (() -> Unit)? = null,
     confirmButtonText: String = "OK",
-    dismissButtonText: String = "Cancel"
+    dismissButtonText: String = "Cancel",
+    timeZone: TimeZone = TimeZone.UTC
 ) {
     val focusRequester = FocusRequester()
     val focusManager = LocalFocusManager.current
@@ -54,7 +55,7 @@ fun OutlinedDatePicker(
                     value.year, value.month,
                     value.dayOfMonth, 0, 0, 0
                 )
-                dateTime.toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
+                dateTime.toInstant(timeZone).toEpochMilliseconds()
             } else {
                 null
             }
@@ -75,7 +76,7 @@ fun OutlinedDatePicker(
                         focusManager.clearFocus()
                         val selectedDate =
                             Instant.fromEpochMilliseconds(datePickerState.selectedDateMillis!!)
-                                .toLocalDateTime(TimeZone.currentSystemDefault()).date
+                                .toLocalDateTime(timeZone).date
                         onValueChange(selectedDate)
                     },
                     enabled = confirmEnabled.value
