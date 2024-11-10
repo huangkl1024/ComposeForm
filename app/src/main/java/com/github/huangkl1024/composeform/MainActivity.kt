@@ -1,9 +1,13 @@
 package com.github.huangkl1024.composeform
 
+import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
+import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.github.huangkl1024.composeform.component.OutlinedDatePicker
 import com.github.huangkl1024.composeform.component.OutlinedPasswordField
@@ -249,7 +254,9 @@ fun FormPage() {
                             options = hobbySelectOptions,
                             optionsFilter = { options, text ->
                                 options.stream()
-                                    .filter { it.getShowValue().lowercase().contains(text.lowercase()) }
+                                    .filter {
+                                        it.getShowValue().lowercase().contains(text.lowercase())
+                                    }
                                     .collect(Collectors.toList())
                             },
                             value = value,
@@ -291,8 +298,10 @@ fun FormPage() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun ActionRow(form: TestForm) {
+    val context = LocalContext.current
     Row {
         Button(
             enabled = false,
@@ -307,7 +316,11 @@ private fun ActionRow(form: TestForm) {
         Button(
             modifier = Modifier.weight(1f),
             onClick = {
-                form.validate()
+                if (form.validate()) {
+                    Toast.makeText(context, "校验通过", LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "校验不通过", LENGTH_SHORT).show()
+                }
             }
         ) {
             Text("Validate")

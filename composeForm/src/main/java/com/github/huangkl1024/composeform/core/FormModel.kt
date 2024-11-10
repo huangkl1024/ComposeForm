@@ -4,6 +4,10 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 
 open class FormFieldValidator<T>(
+    /**
+     * 校验数据
+     * @return true-校验通过, false-校验不通过
+     */
     val validate: (T?) -> Boolean,
     val errorMessage: String
 )
@@ -16,6 +20,7 @@ abstract class Form {
 
     /**
      *校验字段
+     * @return true-校验通过, false-校验不通过
      */
     fun validate(): Boolean {
         var hasError = false
@@ -24,7 +29,7 @@ abstract class Form {
                 hasError = true
             }
         }
-        return hasError
+        return !hasError
     }
 }
 
