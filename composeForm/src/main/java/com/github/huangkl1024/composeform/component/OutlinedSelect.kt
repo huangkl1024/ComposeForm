@@ -55,7 +55,12 @@ fun <T : SelectOption> OutlinedSelect(
 
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = { expanded = it },
+        onExpandedChange = {
+            if(enabled) {
+                // 启用点击才生效
+                expanded = it
+            }
+        },
         modifier = modifier.onFocusChanged {
             focused = it.isFocused
         }
@@ -82,7 +87,7 @@ fun <T : SelectOption> OutlinedSelect(
                         selectedValue = null
                         onValueChange(null)
                         expanded = false
-                    }) {
+                    }, enabled = enabled) {
                         Icon(Icons.Filled.Cancel, contentDescription = "Cancel value button")
                     }
                 }
@@ -173,7 +178,11 @@ fun <T : SelectOption> SearchOutlinedSelect(
 
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = setExpanded,
+        onExpandedChange = {
+            if(enabled) {
+                setExpanded(it)
+            }
+        },
         modifier = modifier.onFocusChanged {
             focus = it.isFocused
         }
@@ -205,7 +214,7 @@ fun <T : SelectOption> SearchOutlinedSelect(
                         selectedValue = null
                         onValueChange(null)
                         setExpanded(false)
-                    }) {
+                    }, enabled = enabled) {
                         Icon(Icons.Filled.Cancel, contentDescription = "Cancel value button")
                     }
                 }

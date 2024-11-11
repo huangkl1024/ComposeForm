@@ -65,7 +65,7 @@ fun OutlinedPasswordField(
             else Icons.Filled.VisibilityOff
             // Please provide localized description for accessibility services
             val description = if (passwordVisible) "Hide password" else "Show password"
-            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+            IconButton(onClick = { passwordVisible = !passwordVisible }, enabled = enabled) {
                 Icon(imageVector = image, description)
             }
         },

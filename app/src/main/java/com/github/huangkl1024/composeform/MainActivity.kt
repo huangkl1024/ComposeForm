@@ -25,8 +25,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -118,8 +120,7 @@ class TestForm : Form() {
     )
 
     val lastName = FormField(
-        value = mutableStateOf(""),
-        enabled = mutableStateOf(false)
+        value = mutableStateOf("")
     )
 
     val email = FormField(
@@ -181,6 +182,7 @@ fun FormPage() {
     val form = remember {
         TestForm()
     }
+
 
     Form {
         Column {
@@ -304,15 +306,18 @@ fun FormPage() {
 @Composable
 private fun ActionRow(form: TestForm) {
     val context = LocalContext.current
+    var disableAll by remember { mutableStateOf(false) }
     Row {
         Button(
-            enabled = false,
             modifier = Modifier.weight(1f),
             onClick = {
-                // nothing
+                for (field in form.fields()) {
+                    field.enabled.value = disableAll
+                }
+                disableAll = !disableAll
             }
         ) {
-            Text("Back")
+            Text(if (disableAll) "Enable All" else "Disable All")
         }
         Spacer(modifier = Modifier.width(16.dp))
         Button(

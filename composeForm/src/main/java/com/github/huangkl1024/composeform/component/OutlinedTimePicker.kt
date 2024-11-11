@@ -101,7 +101,7 @@ fun OutlinedTimePicker(
     }
     if (value != null) {
         trailingIcon = {
-            IconButton({ onValueChange(null) }) {
+            IconButton({ onValueChange(null) }, enabled = enabled) {
                 Icon(Icons.Outlined.Cancel, contentDescription = "Time cancel icon button")
             }
         }
@@ -117,7 +117,7 @@ fun OutlinedTimePicker(
         modifier = modifier
             .focusRequester(focusRequester)
             .onFocusChanged {
-                if (it.isFocused) {
+                if (enabled && it.isFocused) {
                     showTimePickerDialog = true
                 }
             },
