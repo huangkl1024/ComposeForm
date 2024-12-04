@@ -2,6 +2,7 @@ package com.github.huangkl1024.composeform
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.ComponentActivity
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType.Companion.Phone
 import androidx.compose.ui.unit.dp
 import com.github.huangkl1024.composeform.component.OutlinedDatePicker
 import com.github.huangkl1024.composeform.component.OutlinedPasswordField
@@ -40,6 +43,7 @@ import com.github.huangkl1024.composeform.component.SearchOutlinedSelect
 import com.github.huangkl1024.composeform.component.SelectOption
 import com.github.huangkl1024.composeform.core.Form
 import com.github.huangkl1024.composeform.core.FormField
+import com.github.huangkl1024.composeform.core.FormValidator
 import com.github.huangkl1024.composeform.formatter.fomatDateShort
 import com.github.huangkl1024.composeform.formatter.formatTime
 import com.github.huangkl1024.composeform.ui.theme.ComposeFormTheme
@@ -111,7 +115,7 @@ val hobbySelectOptions: MutableList<HobbySelectOption> = Hobby.entries.stream()
     .collect(Collectors.toList())
 
 
-class TestForm : Form() {
+class TestForm : Form<TestForm>() {
     val firstName = FormField(
         value = mutableStateOf(""),
         validators = mutableListOf(
@@ -123,10 +127,13 @@ class TestForm : Form() {
         value = mutableStateOf("")
     )
 
+    val phone = FormField(
+        value = mutableStateOf("")
+    )
+
     val email = FormField(
         value = mutableStateOf(""),
         validators = mutableListOf(
-            NotBlankValidator(),
             EmailValidator()
         )
     )
@@ -173,6 +180,14 @@ class TestForm : Form() {
     override fun fields(): List<FormField<*>> {
         return fields
     }
+
+    override fun validators(): List<FormValidator<TestForm>> {
+        return mutableListOf(
+            object : FormValidator<TestForm>(validate = {
+                it.phone.value.value?.isNotEmpty() == true || it.email.value.value?.isNotEmpty() == true
+            }, errorMessage = "The phone and email must have one that is not empty") {}
+        )
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -216,6 +231,20 @@ fun FormPage() {
                                 Text(errorMessage, color = MaterialTheme.colorScheme.error)
                             },
                             modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    FormItem(field = form.phone) {
+                        OutlinedTextField(
+                            label = { Text("Phone") },
+                            value = value ?: "",
+                            onValueChange = onValueChange,
+                            isError = isError,
+                            enabled = enabled,
+                            supportingText = defaultErrorText(),
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardOptions = KeyboardOptions.Default.copy(
+                                keyboardType = Phone
+                            ),
                         )
                     }
                     FormItem(field = form.email) {
@@ -323,10 +352,12 @@ private fun ActionRow(form: TestForm) {
         Button(
             modifier = Modifier.weight(1f),
             onClick = {
-                if (form.validate()) {
+                val result = form.validate()
+                if (result.success) {
                     Toast.makeText(context, "校验通过", LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(context, "校验不通过", LENGTH_SHORT).show()
+                    Log.i("FormValidator", "不通过消息如下：${result.errorMessages}")
                 }
             }
         ) {
