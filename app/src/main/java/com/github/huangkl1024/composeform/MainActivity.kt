@@ -148,28 +148,28 @@ class TestForm : Form<TestForm>() {
         )
     )
 
-    val sex = FormField<SexSelectOption>(
+    val sex = FormField<SexSelectOption?>(
         value = mutableStateOf(null),
         validators = mutableListOf(
             NotNullValidator(),
         )
     )
 
-    val hobby = FormField<HobbySelectOption>(
+    val hobby = FormField<HobbySelectOption?>(
         value = mutableStateOf(null),
         validators = mutableListOf(
             NotNullValidator(),
         )
     )
 
-    val birthday = FormField<LocalDate>(
+    val birthday = FormField<LocalDate?>(
         value = mutableStateOf(null),
         validators = mutableListOf(
             NotNullValidator(),
         )
     )
 
-    val time = FormField<LocalTime>(
+    val time = FormField<LocalTime?>(
         value = mutableStateOf(null),
         validators = mutableListOf(
             NotNullValidator(),
@@ -186,7 +186,7 @@ class TestForm : Form<TestForm>() {
     override fun validators(): List<FormValidator<TestForm>> {
         return mutableListOf(
             object : FormValidator<TestForm>(validate = {
-                it.phone.value.value?.isNotEmpty() == true || it.email.value.value?.isNotEmpty() == true
+                it.phone.getValue().isNotEmpty() || it.email.getValue().isNotEmpty()
             }, errorMessage = "The phone and email must have one that is not empty") {}
         )
     }
@@ -212,7 +212,7 @@ fun FormPage() {
                     FormItem(field = form.firstName) {
                         OutlinedTextField(
                             label = { Text("First name") },
-                            value = value ?: "",
+                            value = value,
                             onValueChange = onValueChange,
                             isError = isError,
                             enabled = enabled,
@@ -225,7 +225,7 @@ fun FormPage() {
                     FormItem(field = form.lastName) {
                         OutlinedTextField(
                             label = { Text("Last name") },
-                            value = value ?: "",
+                            value = value,
                             onValueChange = onValueChange,
                             isError = isError,
                             enabled = enabled,
@@ -238,7 +238,7 @@ fun FormPage() {
                     FormItem(field = form.phone) {
                         OutlinedTextField(
                             label = { Text("Phone") },
-                            value = value ?: "",
+                            value = value,
                             onValueChange = onValueChange,
                             isError = isError,
                             enabled = enabled,
@@ -252,7 +252,7 @@ fun FormPage() {
                     FormItem(field = form.email) {
                         OutlinedTextField(
                             label = { Text("Email") },
-                            value = value ?: "",
+                            value = value,
                             onValueChange = onValueChange,
                             isError = isError,
                             enabled = enabled,
@@ -263,7 +263,7 @@ fun FormPage() {
                     FormItem(field = form.password) {
                         OutlinedPasswordField(
                             label = { Text("Password") },
-                            value = value ?: "",
+                            value = value,
                             onValueChange = onValueChange,
                             isError = isError,
                             enabled = enabled,

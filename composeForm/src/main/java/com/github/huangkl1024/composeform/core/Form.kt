@@ -26,7 +26,7 @@ class FormScope {
 
 class FormItemScope<T>(field: FormField<T>) {
     var value by field.value
-    val onValueChange: (T?) -> Unit = field.onValueChange
+    val onValueChange: (T) -> Unit = field.onValueChange
     val isError by field.isError
     val enabled by field.enabled
     private val errorMessage: String? by field.errorMessage
