@@ -101,8 +101,10 @@ fun OutlinedTimePicker(
     }
     if (value != null) {
         trailingIcon = {
-            IconButton({ onValueChange(null) }, enabled = enabled) {
-                Icon(Icons.Outlined.Cancel, contentDescription = "Time cancel icon button")
+            if(enabled) {
+                IconButton({ onValueChange(null) }) {
+                    Icon(Icons.Outlined.Cancel, contentDescription = "Time cancel icon button")
+                }
             }
         }
     }

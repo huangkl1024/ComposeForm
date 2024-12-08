@@ -76,6 +76,10 @@ class FormField<T>(
         value.value = newValue
     }
 
+    fun getValue(): T? {
+        return value.value
+    }
+
     fun validate(): String? {
         return validate(value.value)
     }

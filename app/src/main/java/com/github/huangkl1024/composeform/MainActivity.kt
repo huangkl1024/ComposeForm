@@ -88,6 +88,8 @@ class SexSelectOption(val sex: Sex) : SelectOption {
     override fun getShowValue(): String {
         return sex.desc
     }
+
+
 }
 
 val sexSelectOptions: MutableList<SexSelectOption> = Sex.entries.stream()

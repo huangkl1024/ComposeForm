@@ -3,7 +3,7 @@ package com.github.huangkl1024.composeform.component
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -32,6 +32,14 @@ interface SelectOption {
      * 获取显示值
      */
     fun getShowValue(): String
+
+    @Composable
+    fun getDropDownMenuItemText(): @Composable () -> Unit = {
+        Text(
+            getShowValue(),
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,7 +64,7 @@ fun <T : SelectOption> OutlinedSelect(
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = {
-            if(enabled) {
+            if (enabled) {
                 // 启用点击才生效
                 expanded = it
             }
@@ -83,12 +91,15 @@ fun <T : SelectOption> OutlinedSelect(
                 if (expanded || textValue.isEmpty()) {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                 } else {
-                    IconButton({
-                        selectedValue = null
-                        onValueChange(null)
-                        expanded = false
-                    }, enabled = enabled) {
-                        Icon(Icons.Filled.Cancel, contentDescription = "Cancel value button")
+                    if (enabled) {
+                        // 启用才显示取消按钮
+                        IconButton({
+                            selectedValue = null
+                            onValueChange(null)
+                            expanded = false
+                        }) {
+                            Icon(Icons.Outlined.Cancel, contentDescription = "Cancel value button")
+                        }
                     }
                 }
             },
@@ -114,12 +125,7 @@ fun <T : SelectOption> OutlinedSelect(
             } else {
                 options.forEach { option ->
                     DropdownMenuItem(
-                        text = {
-                            Text(
-                                option.getShowValue(),
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        },
+                        text = option.getDropDownMenuItemText(),
                         onClick = {
                             selectedValue = option
                             expanded = false
@@ -179,7 +185,7 @@ fun <T : SelectOption> SearchOutlinedSelect(
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = {
-            if(enabled) {
+            if (enabled) {
                 setExpanded(it)
             }
         },
@@ -210,13 +216,16 @@ fun <T : SelectOption> SearchOutlinedSelect(
                         modifier = Modifier.menuAnchor(MenuAnchorType.SecondaryEditable),
                     )
                 } else {
-                    IconButton({
-                        selectedValue = null
-                        onValueChange(null)
-                        setExpanded(false)
-                    }, enabled = enabled) {
-                        Icon(Icons.Filled.Cancel, contentDescription = "Cancel value button")
+                    if (enabled) {
+                        IconButton({
+                            selectedValue = null
+                            onValueChange(null)
+                            setExpanded(false)
+                        }) {
+                            Icon(Icons.Outlined.Cancel, contentDescription = "Cancel value button")
+                        }
                     }
+
                 }
             },
             colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
