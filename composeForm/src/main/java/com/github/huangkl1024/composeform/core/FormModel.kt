@@ -65,25 +65,36 @@ abstract class Form<T : Form<T>> {
 }
 
 class FormField<T>(
-    val value: MutableState<T>,
-    val enabled: MutableState<Boolean> = mutableStateOf(true),
+    internal val value: MutableState<T>,
+    internal val enabled: MutableState<Boolean> = mutableStateOf(true),
     private val validators: List<FormFieldValidator<T>> = emptyList(),
 ) {
-    var isError: MutableState<Boolean> = mutableStateOf(false)
-    var errorMessage: MutableState<String?> = mutableStateOf(null)
-    val onValueChange: (T) -> Unit = { newValue ->
+    internal var isError: MutableState<Boolean> = mutableStateOf(false)
+    internal var errorMessage: MutableState<String?> = mutableStateOf(null)
+    internal val onValueChange: (T) -> Unit = { newValue ->
         validate(newValue)
         value.value = newValue
+    }
+
+    fun setEnabled(enabled: Boolean) {
+        this.enabled.value = enabled
+    }
+
+    fun getEnabled(): Boolean {
+        return enabled.value
     }
 
     fun getValue(): T {
         return value.value
     }
 
+    fun setValue(newValue: T) {
+        onValueChange(newValue)
+    }
+
     fun validate(): String? {
         return validate(value.value)
     }
-
 
     private fun validate(newValue: T): String? {
         errorMessage.value = null

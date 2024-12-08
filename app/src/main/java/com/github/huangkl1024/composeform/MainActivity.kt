@@ -177,7 +177,7 @@ class TestForm : Form<TestForm>() {
     )
 
     private val fields: List<FormField<*>> =
-        mutableListOf(firstName, lastName, email, password, sex, hobby, birthday, time)
+        mutableListOf(firstName, lastName, phone, email, password, sex, hobby, birthday, time)
 
     override fun fields(): List<FormField<*>> {
         return fields
@@ -343,7 +343,7 @@ private fun ActionRow(form: TestForm) {
             modifier = Modifier.weight(1f),
             onClick = {
                 for (field in form.fields()) {
-                    field.enabled.value = disableAll
+                    field.setEnabled(disableAll)
                 }
                 disableAll = !disableAll
             }
