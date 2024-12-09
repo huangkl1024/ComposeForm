@@ -25,11 +25,11 @@ class FormScope {
 }
 
 class FormItemScope<T>(field: FormField<T>) {
-    var value by field.value
+    var value by field._value
     val onValueChange: (T) -> Unit = field.onValueChange
-    val isError by field.isError
-    val enabled by field.enabled
-    private val errorMessage: String? by field.errorMessage
+    val enabled by field._enabled
+    val isError by field._isError
+    val errorMessage by field._errorMessage
 
     @Composable
     fun errorText(content: @Composable FormItemErrorMessageScope.() -> Unit): (@Composable () -> Unit)? {

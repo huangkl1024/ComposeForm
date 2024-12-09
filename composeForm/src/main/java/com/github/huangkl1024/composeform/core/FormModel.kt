@@ -1,7 +1,9 @@
 package com.github.huangkl1024.composeform.core
 
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
 
 data class FormValidatorResult(
@@ -65,44 +67,40 @@ abstract class Form<T : Form<T>> {
 }
 
 class FormField<T>(
-    internal val value: MutableState<T>,
-    internal val enabled: MutableState<Boolean> = mutableStateOf(true),
+    initValue: T,
+    initEnabled: Boolean = true,
     private val validators: List<FormFieldValidator<T>> = emptyList(),
 ) {
-    internal var isError: MutableState<Boolean> = mutableStateOf(false)
-    internal var errorMessage: MutableState<String?> = mutableStateOf(null)
+
+    internal val _value: MutableState<T> = mutableStateOf(initValue)
+    var value by _value
     internal val onValueChange: (T) -> Unit = { newValue ->
         validate(newValue)
-        value.value = newValue
+        value = newValue
     }
 
-    fun setEnabled(enabled: Boolean) {
-        this.enabled.value = enabled
-    }
+    internal val _enabled: MutableState<Boolean> = mutableStateOf(initEnabled)
+    var enabled by _enabled
 
-    fun getEnabled(): Boolean {
-        return enabled.value
-    }
+    internal var _isError: MutableState<Boolean> = mutableStateOf(false)
+    val isError by _isError
 
-    fun getValue(): T {
-        return value.value
-    }
+    internal var _errorMessage: MutableState<String?> = mutableStateOf(null)
+    val errorMessage by _errorMessage
 
-    fun setValue(newValue: T) {
-        onValueChange(newValue)
-    }
+
 
     fun validate(): String? {
-        return validate(value.value)
+        return validate(value)
     }
 
     private fun validate(newValue: T): String? {
-        errorMessage.value = null
-        isError.value = false
+        _errorMessage.value = null
+        _isError.value = false
         validators.forEach {
             if (!it.validate(newValue)) {
-                errorMessage.value = it.errorMessage
-                isError.value = true
+                _errorMessage.value = it.errorMessage
+                _isError.value = true
                 return it.errorMessage
             }
         }

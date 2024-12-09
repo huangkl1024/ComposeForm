@@ -119,29 +119,29 @@ val hobbySelectOptions: MutableList<HobbySelectOption> = Hobby.entries.stream()
 
 class TestForm : Form<TestForm>() {
     val firstName = FormField(
-        value = mutableStateOf(""),
+        initValue = "",
         validators = mutableListOf(
             NotBlankValidator()
         )
     )
 
     val lastName = FormField(
-        value = mutableStateOf("")
+        initValue = "",
     )
 
     val phone = FormField(
-        value = mutableStateOf("")
+        initValue = "",
     )
 
     val email = FormField(
-        value = mutableStateOf(""),
+        initValue = "",
         validators = mutableListOf(
             EmailValidator()
         )
     )
 
     val password = FormField(
-        value = mutableStateOf(""),
+        initValue = "",
         validators = mutableListOf(
             NotBlankValidator(),
             MinLengthValidator(minLength = 8)
@@ -149,28 +149,28 @@ class TestForm : Form<TestForm>() {
     )
 
     val sex = FormField<SexSelectOption?>(
-        value = mutableStateOf(null),
+        initValue = null,
         validators = mutableListOf(
             NotNullValidator(),
         )
     )
 
     val hobby = FormField<HobbySelectOption?>(
-        value = mutableStateOf(null),
+        initValue = null,
         validators = mutableListOf(
             NotNullValidator(),
         )
     )
 
     val birthday = FormField<LocalDate?>(
-        value = mutableStateOf(null),
+        initValue = null,
         validators = mutableListOf(
             NotNullValidator(),
         )
     )
 
     val time = FormField<LocalTime?>(
-        value = mutableStateOf(null),
+        initValue = null,
         validators = mutableListOf(
             NotNullValidator(),
         )
@@ -186,7 +186,7 @@ class TestForm : Form<TestForm>() {
     override fun validators(): List<FormValidator<TestForm>> {
         return mutableListOf(
             object : FormValidator<TestForm>(validate = {
-                it.phone.getValue().isNotEmpty() || it.email.getValue().isNotEmpty()
+                it.phone.value.isNotEmpty() || it.email.value.isNotEmpty()
             }, errorMessage = "The phone and email must have one that is not empty") {}
         )
     }
@@ -343,7 +343,7 @@ private fun ActionRow(form: TestForm) {
             modifier = Modifier.weight(1f),
             onClick = {
                 for (field in form.fields()) {
-                    field.setEnabled(disableAll)
+                    field.enabled = disableAll
                 }
                 disableAll = !disableAll
             }
