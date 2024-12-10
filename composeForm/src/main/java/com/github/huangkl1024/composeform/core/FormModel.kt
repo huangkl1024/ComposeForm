@@ -83,10 +83,10 @@ class FormField<T>(
     var enabled by _enabled
 
     internal var _isError: MutableState<Boolean> = mutableStateOf(false)
-    val isError by _isError
+    var isError by _isError
 
     internal var _errorMessage: MutableState<String?> = mutableStateOf(null)
-    val errorMessage by _errorMessage
+    var errorMessage by _errorMessage
 
 
 
