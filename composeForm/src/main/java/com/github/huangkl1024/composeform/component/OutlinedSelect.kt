@@ -47,16 +47,17 @@ interface SelectOption {
 fun <T : SelectOption> OutlinedSelect(
     label: @Composable () -> Unit,
     options: List<T>,
-    value: SelectOption?,
+    value: T?,
     onValueChange: (T?) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     isError: Boolean = false,
+    canCancel: Boolean = true,
     supportingText: @Composable (() -> Unit)? = null,
 ) {
     var expanded by remember { mutableStateOf(false) }
     var focused by remember { mutableStateOf(false) }
-    var selectedValue by remember { mutableStateOf(value) }
+    val selectedValue by remember(value) { mutableStateOf(value) }
 
     val focusRequester = FocusRequester()
     val focusManager = LocalFocusManager.current
@@ -91,10 +92,9 @@ fun <T : SelectOption> OutlinedSelect(
                 if (expanded || textValue.isEmpty()) {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                 } else {
-                    if (enabled) {
+                    if (canCancel && enabled) {
                         // 启用才显示取消按钮
                         IconButton({
-                            selectedValue = null
                             onValueChange(null)
                             expanded = false
                         }) {
@@ -127,7 +127,6 @@ fun <T : SelectOption> OutlinedSelect(
                     DropdownMenuItem(
                         text = option.getDropDownMenuItemText(),
                         onClick = {
-                            selectedValue = option
                             expanded = false
                             onValueChange(option)
                             focusManager.clearFocus()
@@ -156,10 +155,11 @@ fun <T : SelectOption> SearchOutlinedSelect(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     isError: Boolean = false,
+    canCancel: Boolean = true,
     supportingText: @Composable (() -> Unit)? = null,
 ) {
 
-    var selectedValue by remember { mutableStateOf(value) }
+    var selectedValue by remember(value) { mutableStateOf(value) }
     var selectedValueTextField by remember(selectedValue) {
         mutableStateOf(toTextField(selectedValue))
     }
@@ -216,9 +216,8 @@ fun <T : SelectOption> SearchOutlinedSelect(
                         modifier = Modifier.menuAnchor(MenuAnchorType.SecondaryEditable),
                     )
                 } else {
-                    if (enabled) {
+                    if (canCancel && enabled) {
                         IconButton({
-                            selectedValue = null
                             onValueChange(null)
                             setExpanded(false)
                         }) {
@@ -254,7 +253,6 @@ fun <T : SelectOption> SearchOutlinedSelect(
                                 selection = TextRange(option.getShowValue().length),
                             )
                         setExpanded(false)
-                        selectedValue = option
                         onValueChange(option)
                         focusManager.clearFocus()
                     },

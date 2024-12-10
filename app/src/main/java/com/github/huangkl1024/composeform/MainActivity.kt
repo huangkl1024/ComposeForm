@@ -155,8 +155,8 @@ class TestForm : Form<TestForm>() {
         )
     )
 
-    val hobby = FormField<HobbySelectOption?>(
-        initValue = null,
+    val hobby = FormField(
+        initValue = hobbySelectOptions[0],
         validators = mutableListOf(
             NotNullValidator(),
         )
@@ -295,9 +295,16 @@ fun FormPage() {
                                     .collect(Collectors.toList())
                             },
                             value = value,
-                            onValueChange = onValueChange,
+                            onValueChange = {
+                                if (it == null) {
+                                    onValueChange(hobbySelectOptions[0])
+                                } else {
+                                    onValueChange(it)
+                                }
+                            },
                             isError = isError,
                             enabled = enabled,
+                            canCancel = false,
                             supportingText = defaultErrorText(),
                             modifier = Modifier.fillMaxWidth()
                         )
