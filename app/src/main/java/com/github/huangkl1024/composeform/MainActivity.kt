@@ -254,7 +254,7 @@ fun FormPage() {
                                 Text(it.desc)
                             },
                             convertOption2String = {
-                                it?.desc ?: ""
+                                it.desc
                             },
                             value = value,
                             onValueChange = onValueChange,
@@ -276,7 +276,7 @@ fun FormPage() {
                                     .collect(Collectors.toList())
                             },
                             convertOption2String = {
-                                it?.desc ?: ""
+                                it.desc
                             },
                             renderOption = {
                                 Text(it.desc)

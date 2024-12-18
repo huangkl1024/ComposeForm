@@ -32,7 +32,7 @@ fun <T> OutlinedSelect(
     label: @Composable () -> Unit,
     options: List<T>,
     renderOption: @Composable (T) -> Unit,
-    convertOption2String: (option: T?) -> String,
+    convertOption2String: (option: T) -> String,
     value: T?,
     onValueChange: (T?) -> Unit,
     modifier: Modifier = Modifier,
@@ -43,7 +43,13 @@ fun <T> OutlinedSelect(
 ) {
     var expanded by remember { mutableStateOf(false) }
     var focused by remember { mutableStateOf(false) }
-    val selectedValue by remember(value) { mutableStateOf(value) }
+    val showValue by remember(value) {
+        if(value == null) {
+            mutableStateOf("")
+        } else {
+            mutableStateOf(convertOption2String(value))
+        }
+    }
 
     val focusRequester = FocusRequester()
     val focusManager = LocalFocusManager.current
@@ -60,7 +66,6 @@ fun <T> OutlinedSelect(
             focused = it.isFocused
         }
     ) {
-        val textValue = convertOption2String(selectedValue)
         OutlinedTextField(
             // The `menuAnchor` modifier must be passed to the text field to handle
             // expanding/collapsing the menu on click. A read-only text field has
@@ -69,13 +74,13 @@ fun <T> OutlinedSelect(
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                 .fillMaxWidth()
                 .focusRequester(focusRequester),
-            value = textValue,
+            value = showValue,
             onValueChange = {},
             readOnly = true,
             singleLine = true,
             label = label,
             trailingIcon = {
-                if (expanded || textValue.isEmpty()) {
+                if (expanded || showValue.isEmpty()) {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                 } else {
                     if (canCancel && enabled) {
@@ -134,7 +139,7 @@ fun <T> SearchOutlinedSelect(
     options: List<T>,
     optionsFilter: (List<T>, String) -> List<T>,
     renderOption: @Composable (T) -> Unit,
-    convertOption2String: (option: T?) -> String,
+    convertOption2String: (option: T) -> String,
     value: T?,
     onValueChange: (T?) -> Unit,
     modifier: Modifier = Modifier,
@@ -144,24 +149,30 @@ fun <T> SearchOutlinedSelect(
     supportingText: @Composable (() -> Unit)? = null,
 ) {
 
-    val selectedShowValue by remember(value) { mutableStateOf(convertOption2String(value)) }
-    var selectedValueTextField by remember(selectedShowValue) {
-        val textField = TextFieldValue(selectedShowValue, TextRange(selectedShowValue.length))
+    val showValue by remember(value) {
+        if(value == null) {
+            mutableStateOf("")
+        } else {
+            mutableStateOf(convertOption2String(value))
+        }
+    }
+    var textFieldValueOfShowValue by remember(showValue) {
+        val textField = TextFieldValue(showValue, TextRange(showValue.length))
         mutableStateOf(textField)
     }
 
     // The text that the user inputs into the text field can be used to filter the options.
     // This sample uses string subsequence matching.
-    val filteredOptions = if (selectedShowValue != selectedValueTextField.text)
-        optionsFilter(options, selectedValueTextField.text)
+    val filteredOptions = if (showValue != textFieldValueOfShowValue.text)
+        optionsFilter(options, textFieldValueOfShowValue.text)
     else
         options
     val (allowExpanded, setExpanded) = remember { mutableStateOf(false) }
     val expanded = allowExpanded && filteredOptions.isNotEmpty()
 
     var focus by remember { mutableStateOf(false) }
-    if (!focus && selectedShowValue != selectedValueTextField.text) {
-        selectedValueTextField = TextFieldValue(selectedShowValue, TextRange(selectedShowValue.length))
+    if (!focus && showValue != textFieldValueOfShowValue.text) {
+        textFieldValueOfShowValue = TextFieldValue(showValue, TextRange(showValue.length))
     }
 
     val focusRequester = FocusRequester()
@@ -187,12 +198,12 @@ fun <T> SearchOutlinedSelect(
                 .menuAnchor(MenuAnchorType.PrimaryEditable)
                 .fillMaxWidth()
                 .focusRequester(focusRequester),
-            value = selectedValueTextField,
-            onValueChange = { selectedValueTextField = it },
+            value = textFieldValueOfShowValue,
+            onValueChange = { textFieldValueOfShowValue = it },
             singleLine = true,
             label = label,
             trailingIcon = {
-                if (expanded || selectedShowValue.isEmpty()) {
+                if (expanded || showValue.isEmpty()) {
                     ExposedDropdownMenuDefaults.TrailingIcon(
                         expanded = expanded,
                         // If the text field is editable, it is recommended to make the
@@ -230,11 +241,11 @@ fun <T> SearchOutlinedSelect(
                         renderOption(option)
                     },
                     onClick = {
-                        val showValue = convertOption2String(option)
-                        selectedValueTextField =
+                        val text = convertOption2String(option)
+                        textFieldValueOfShowValue =
                             TextFieldValue(
-                                text = showValue,
-                                selection = TextRange(showValue.length),
+                                text = text,
+                                selection = TextRange(text.length),
                             )
                         setExpanded(false)
                         onValueChange(option)
