@@ -10,7 +10,6 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -27,26 +26,13 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 
-interface SelectOption {
-    /**
-     * 获取显示值
-     */
-    fun getShowValue(): String
-
-    @Composable
-    fun getDropDownMenuItemText(): @Composable () -> Unit = {
-        Text(
-            getShowValue(),
-            style = MaterialTheme.typography.bodyLarge
-        )
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun <T : SelectOption> OutlinedSelect(
+fun <T> OutlinedSelect(
     label: @Composable () -> Unit,
     options: List<T>,
+    renderOption: @Composable (T) -> Unit,
+    convertOption2String: (option: T?) -> String,
     value: T?,
     onValueChange: (T?) -> Unit,
     modifier: Modifier = Modifier,
@@ -74,7 +60,7 @@ fun <T : SelectOption> OutlinedSelect(
             focused = it.isFocused
         }
     ) {
-        val textValue = selectedValue?.getShowValue() ?: ""
+        val textValue = convertOption2String(selectedValue)
         OutlinedTextField(
             // The `menuAnchor` modifier must be passed to the text field to handle
             // expanding/collapsing the menu on click. A read-only text field has
@@ -125,7 +111,9 @@ fun <T : SelectOption> OutlinedSelect(
             } else {
                 options.forEach { option ->
                     DropdownMenuItem(
-                        text = option.getDropDownMenuItemText(),
+                        text = {
+                            renderOption(option)
+                        },
                         onClick = {
                             expanded = false
                             onValueChange(option)
@@ -139,17 +127,14 @@ fun <T : SelectOption> OutlinedSelect(
     }
 }
 
-fun <T : SelectOption> toTextField(option: T?): TextFieldValue {
-    val showValue = option?.getShowValue() ?: ""
-    return TextFieldValue(showValue, TextRange(showValue.length))
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun <T : SelectOption> SearchOutlinedSelect(
+fun <T> SearchOutlinedSelect(
     label: @Composable () -> Unit,
     options: List<T>,
     optionsFilter: (List<T>, String) -> List<T>,
+    renderOption: @Composable (T) -> Unit,
+    convertOption2String: (option: T?) -> String,
     value: T?,
     onValueChange: (T?) -> Unit,
     modifier: Modifier = Modifier,
@@ -159,14 +144,15 @@ fun <T : SelectOption> SearchOutlinedSelect(
     supportingText: @Composable (() -> Unit)? = null,
 ) {
 
-    var selectedValue by remember(value) { mutableStateOf(value) }
-    var selectedValueTextField by remember(selectedValue) {
-        mutableStateOf(toTextField(selectedValue))
+    val selectedShowValue by remember(value) { mutableStateOf(convertOption2String(value)) }
+    var selectedValueTextField by remember(selectedShowValue) {
+        val textField = TextFieldValue(selectedShowValue, TextRange(selectedShowValue.length))
+        mutableStateOf(textField)
     }
 
     // The text that the user inputs into the text field can be used to filter the options.
     // This sample uses string subsequence matching.
-    val filteredOptions = if (selectedValue?.getShowValue() != selectedValueTextField.text)
+    val filteredOptions = if (selectedShowValue != selectedValueTextField.text)
         optionsFilter(options, selectedValueTextField.text)
     else
         options
@@ -174,8 +160,8 @@ fun <T : SelectOption> SearchOutlinedSelect(
     val expanded = allowExpanded && filteredOptions.isNotEmpty()
 
     var focus by remember { mutableStateOf(false) }
-    if (!focus && selectedValue?.getShowValue() != selectedValueTextField.text) {
-        selectedValueTextField = toTextField(selectedValue)
+    if (!focus && selectedShowValue != selectedValueTextField.text) {
+        selectedValueTextField = TextFieldValue(selectedShowValue, TextRange(selectedShowValue.length))
     }
 
     val focusRequester = FocusRequester()
@@ -206,7 +192,7 @@ fun <T : SelectOption> SearchOutlinedSelect(
             singleLine = true,
             label = label,
             trailingIcon = {
-                if (expanded || selectedValue == null) {
+                if (expanded || selectedShowValue.isEmpty()) {
                     ExposedDropdownMenuDefaults.TrailingIcon(
                         expanded = expanded,
                         // If the text field is editable, it is recommended to make the
@@ -241,16 +227,14 @@ fun <T : SelectOption> SearchOutlinedSelect(
             filteredOptions.forEach { option ->
                 DropdownMenuItem(
                     text = {
-                        Text(
-                            option.getShowValue(),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                        renderOption(option)
                     },
                     onClick = {
+                        val showValue = convertOption2String(option)
                         selectedValueTextField =
                             TextFieldValue(
-                                text = option.getShowValue(),
-                                selection = TextRange(option.getShowValue().length),
+                                text = showValue,
+                                selection = TextRange(showValue.length),
                             )
                         setExpanded(false)
                         onValueChange(option)

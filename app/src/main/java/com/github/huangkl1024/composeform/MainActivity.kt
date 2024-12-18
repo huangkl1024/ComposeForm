@@ -40,7 +40,6 @@ import com.github.huangkl1024.composeform.component.OutlinedPasswordField
 import com.github.huangkl1024.composeform.component.OutlinedSelect
 import com.github.huangkl1024.composeform.component.OutlinedTimePicker
 import com.github.huangkl1024.composeform.component.SearchOutlinedSelect
-import com.github.huangkl1024.composeform.component.SelectOption
 import com.github.huangkl1024.composeform.core.Form
 import com.github.huangkl1024.composeform.core.FormField
 import com.github.huangkl1024.composeform.core.FormValidator
@@ -84,19 +83,6 @@ enum class Sex(val code: Int, val desc: String) {
     FEMALE(0, "Female")
 }
 
-class SexSelectOption(val sex: Sex) : SelectOption {
-    override fun getShowValue(): String {
-        return sex.desc
-    }
-
-
-}
-
-val sexSelectOptions: MutableList<SexSelectOption> = Sex.entries.stream()
-    .map { SexSelectOption(it) }
-    .collect(Collectors.toList())
-
-
 enum class Hobby(val code: Int, val desc: String) {
     SWIMMING(0, "Swimming"),
     RUNNING(1, "Running"),
@@ -104,17 +90,6 @@ enum class Hobby(val code: Int, val desc: String) {
     ROPE_SKIPPING(3, "Rope skipping"),
     SHOOTING(4, "Shooting")
 }
-
-
-class HobbySelectOption(val hobby: Hobby) : SelectOption {
-    override fun getShowValue(): String {
-        return hobby.desc
-    }
-}
-
-val hobbySelectOptions: MutableList<HobbySelectOption> = Hobby.entries.stream()
-    .map { HobbySelectOption(it) }
-    .collect(Collectors.toList())
 
 
 class TestForm : Form<TestForm>() {
@@ -148,7 +123,7 @@ class TestForm : Form<TestForm>() {
         )
     )
 
-    val sex = FormField<SexSelectOption?>(
+    val sex = FormField<Sex?>(
         initValue = null,
         validators = mutableListOf(
             NotNullValidator(),
@@ -156,7 +131,7 @@ class TestForm : Form<TestForm>() {
     )
 
     val hobby = FormField(
-        initValue = hobbySelectOptions[0],
+        initValue = Hobby.entries[0],
         validators = mutableListOf(
             NotNullValidator(),
         )
@@ -274,7 +249,13 @@ fun FormPage() {
                     FormItem(field = form.sex) {
                         OutlinedSelect(
                             label = { Text("Sex") },
-                            options = sexSelectOptions,
+                            options = Sex.entries,
+                            renderOption = {
+                                Text(it.desc)
+                            },
+                            convertOption2String = {
+                                it?.desc ?: ""
+                            },
                             value = value,
                             onValueChange = onValueChange,
                             isError = isError,
@@ -286,18 +267,24 @@ fun FormPage() {
                     FormItem(field = form.hobby) {
                         SearchOutlinedSelect(
                             label = { Text("Hobby") },
-                            options = hobbySelectOptions,
+                            options = Hobby.entries,
                             optionsFilter = { options, text ->
                                 options.stream()
                                     .filter {
-                                        it.getShowValue().lowercase().contains(text.lowercase())
+                                        it.desc.lowercase().contains(text.lowercase())
                                     }
                                     .collect(Collectors.toList())
+                            },
+                            convertOption2String = {
+                                it?.desc ?: ""
+                            },
+                            renderOption = {
+                                Text(it.desc)
                             },
                             value = value,
                             onValueChange = {
                                 if (it == null) {
-                                    onValueChange(hobbySelectOptions[0])
+                                    onValueChange(Hobby.entries[0])
                                 } else {
                                     onValueChange(it)
                                 }
