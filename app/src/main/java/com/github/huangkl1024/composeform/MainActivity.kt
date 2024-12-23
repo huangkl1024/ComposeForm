@@ -91,6 +91,62 @@ enum class Hobby(val code: Int, val desc: String) {
     SHOOTING(4, "Shooting")
 }
 
+enum class Country(val code: String, val desc: String) {
+    AFGHANISTAN("AF", "Afghanistan"),
+    ALBANIA("AL", "Albania"),
+    ALGERIA("DZ", "Algeria"),
+    ANDORRA("AD", "Andorra"),
+    ANGOLA("AO", "Angola"),
+    ARGENTINA("AR", "Argentina"),
+    AUSTRALIA("AU", "Australia"),
+    AUSTRIA("AT", "Austria"),
+    BELGIUM("BE", "Belgium"),
+    BRAZIL("BR", "Brazil"),
+    CANADA("CA", "Canada"),
+    CHINA("CN", "China"),
+    DENMARK("DK", "Denmark"),
+    EGYPT("EG", "Egypt"),
+    FINLAND("FI", "Finland"),
+    FRANCE("FR", "France"),
+    GERMANY("DE", "Germany"),
+    GREECE("GR", "Greece"),
+    INDIA("IN", "India"),
+    INDONESIA("ID", "Indonesia"),
+    IRAN("IR", "Iran"),
+    IRAQ("IQ", "Iraq"),
+    IRELAND("IE", "Ireland"),
+    ISRAEL("IL", "Israel"),
+    ITALY("IT", "Italy"),
+    JAPAN("JP", "Japan"),
+    KOREA_SOUTH("KR", "South Korea"),
+    MALAYSIA("MY", "Malaysia"),
+    MEXICO("MX", "Mexico"),
+    NETHERLANDS("NL", "Netherlands"),
+    NEW_ZEALAND("NZ", "New Zealand"),
+    NORWAY("NO", "Norway"),
+    PAKISTAN("PK", "Pakistan"),
+    PHILIPPINES("PH", "Philippines"),
+    POLAND("PL", "Poland"),
+    PORTUGAL("PT", "Portugal"),
+    RUSSIA("RU", "Russia"),
+    SAUDI_ARABIA("SA", "Saudi Arabia"),
+    SINGAPORE("SG", "Singapore"),
+    SOUTH_AFRICA("ZA", "South Africa"),
+    SPAIN("ES", "Spain"),
+    SWEDEN("SE", "Sweden"),
+    SWITZERLAND("CH", "Switzerland"),
+    THAILAND("TH", "Thailand"),
+    TURKEY("TR", "Turkey"),
+    UKRAINE("UA", "Ukraine"),
+    UNITED_KINGDOM("GB", "United Kingdom"),
+    UNITED_STATES("US", "United States"),
+    VIETNAM("VN", "Vietnam");
+
+    companion object {
+        val sortedEntries: List<Country> = entries.sortedBy { it.desc }
+    }
+}
+
 
 class TestForm : Form<TestForm>() {
     val firstName = FormField(
@@ -151,8 +207,15 @@ class TestForm : Form<TestForm>() {
         )
     )
 
+    val country = FormField<Country?>(
+        initValue = null,
+        validators = mutableListOf(
+            NotNullValidator(),
+        )
+    )
+
     private val fields: List<FormField<*>> =
-        mutableListOf(firstName, lastName, phone, email, password, sex, hobby, birthday, time)
+        mutableListOf(firstName, lastName, phone, email, password, sex, hobby, birthday, time, country)
 
     override fun fields(): List<FormField<*>> {
         return fields
@@ -314,6 +377,30 @@ fun FormPage() {
                             value = value,
                             onValueChange = onValueChange,
                             timeFormat = ::formatTime,
+                            isError = isError,
+                            enabled = enabled,
+                            supportingText = defaultErrorText(),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    FormItem(field = form.country) {
+                        SearchOutlinedSelect(
+                            label = { Text("Country") },
+                            options = Country.sortedEntries,
+                            optionsFilter = { options, text ->
+                                options.filter {
+                                    it.desc.lowercase().contains(text.lowercase()) ||
+                                    it.code.lowercase().contains(text.lowercase())
+                                }
+                            },
+                            convertOption2String = {
+                                it.desc
+                            },
+                            renderOption = {
+                                Text("${it.desc} (${it.code})")
+                            },
+                            value = value,
+                            onValueChange = onValueChange,
                             isError = isError,
                             enabled = enabled,
                             supportingText = defaultErrorText(),
