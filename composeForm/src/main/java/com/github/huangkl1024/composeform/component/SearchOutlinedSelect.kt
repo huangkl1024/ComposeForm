@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -15,17 +14,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,29 +36,43 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun <T> SearchOutlinedSelect(
-    label: @Composable () -> Unit,
     options: List<T>,
     optionsFilter: (List<T>, String) -> List<T>,
     renderOption: @Composable (T) -> Unit,
     convertOption2String: (option: T) -> String,
     value: T?,
     onValueChange: (T?) -> Unit,
+    trailingIconTint: Color = LocalContentColor.current,
+    canCancel: Boolean = true,
+
+    // OutlinedFieldText props
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    isError: Boolean = false,
-    canCancel: Boolean = true,
+    textStyle: TextStyle = LocalTextStyle.current,
+    label: @Composable (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    prefix: @Composable (() -> Unit)? = null,
+    suffix: @Composable (() -> Unit)? = null,
     supportingText: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    shape: Shape = OutlinedTextFieldDefaults.shape,
+    colors: TextFieldColors = OutlinedTextFieldDefaults.colors()
 ) {
     val showValue by remember(value) {
         if (value == null) {
@@ -163,39 +179,47 @@ fun <T> SearchOutlinedSelect(
         }
     }
 
-    Column(modifier = modifier) {
-        OutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .focusRequester(focusRequester)
-                .onFocusChanged {
-                    focus = it.isFocused
-                    if (it.isFocused) {
-                        showBottomSheet = true
-                    }
-                },
-            value = textFieldValueOfShowValue,
-            onValueChange = { },
-            readOnly = true,
-            singleLine = true,
-            label = label,
-            trailingIcon = {
-                Row {
-                    if (textFieldValueOfShowValue.text.isNotEmpty() && canCancel && enabled) {
-                        IconButton(onClick = {
-                            onValueChange(null)
-                            textFieldValueOfShowValue = TextFieldValue("")
-                        }) {
-                            Icon(Icons.Outlined.Cancel, contentDescription = "Clear")
-                        }
-                    } else {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = showBottomSheet)
-                    }
+    OutlinedTextField(
+        modifier = modifier
+            .fillMaxWidth()
+            .focusRequester(focusRequester)
+            .onFocusChanged {
+                focus = it.isFocused
+                if (it.isFocused) {
+                    showBottomSheet = true
                 }
             },
-            isError = isError,
-            enabled = enabled,
-            supportingText = supportingText
-        )
-    }
+        value = textFieldValueOfShowValue,
+        onValueChange = { },
+        readOnly = true,
+        singleLine = true,
+        label = label,
+        trailingIcon = {
+            if (textFieldValueOfShowValue.text.isNotEmpty() && canCancel && enabled) {
+                IconButton(onClick = {
+                    onValueChange(null)
+                    textFieldValueOfShowValue = TextFieldValue("")
+                }) {
+                    Icon(Icons.Outlined.Cancel, tint = trailingIconTint, contentDescription = "Clear")
+                }
+            } else {
+                Icon(
+                    imageVector = Icons.Filled.ArrowDropDown,
+                    tint = trailingIconTint,
+                    contentDescription = null,
+                    modifier = Modifier.rotate(if (showBottomSheet) 180f else 0f)
+                )
+            }
+        },
+        isError = isError,
+        enabled = enabled,
+        supportingText = supportingText,
+        textStyle = textStyle,
+        shape = shape,
+        colors = colors,
+        placeholder = placeholder,
+        leadingIcon = leadingIcon,
+        prefix = prefix,
+        suffix = suffix
+    )
 }
