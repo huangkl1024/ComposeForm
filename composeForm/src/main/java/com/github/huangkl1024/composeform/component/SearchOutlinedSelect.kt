@@ -47,6 +47,10 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.background
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.ui.draw.clip
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -154,20 +158,39 @@ fun <T> SearchOutlinedSelect(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         items(filteredOptions) { option ->
+                            val isSelected = remember(value, option) {
+                                derivedStateOf { value == option }
+                            }
+                            
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .heightIn(min = 48.dp)
+                                    .clip(MaterialTheme.shapes.small)
+                                    .background(
+                                        color = if (isSelected.value) {
+                                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                                        } else {
+                                            Color.Transparent
+                                        }
+                                    )
                                     .clickable {
-                                        val text = convertOption2String(option)
-                                        textFieldValueOfShowValue = TextFieldValue(
-                                            text = text,
-                                            selection = TextRange(text.length)
-                                        )
-                                        showBottomSheet = false
-                                        onValueChange(option)
+                                        if (isSelected.value && canCancel) {
+                                            textFieldValueOfShowValue = TextFieldValue("")
+                                            showBottomSheet = false
+                                            onValueChange(null)
+                                        } else {
+                                            val text = convertOption2String(option)
+                                            textFieldValueOfShowValue = TextFieldValue(
+                                                text = text,
+                                                selection = TextRange(text.length)
+                                            )
+                                            showBottomSheet = false
+                                            onValueChange(option)
+                                        }
                                         focusManager.clearFocus()
-                                    },
+                                    }
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
                                 contentAlignment = Alignment.CenterStart
                             ) {
                                 renderOption(option)
@@ -195,21 +218,12 @@ fun <T> SearchOutlinedSelect(
         singleLine = true,
         label = label,
         trailingIcon = {
-            if (textFieldValueOfShowValue.text.isNotEmpty() && canCancel && enabled) {
-                IconButton(onClick = {
-                    onValueChange(null)
-                    textFieldValueOfShowValue = TextFieldValue("")
-                }) {
-                    Icon(Icons.Outlined.Cancel, tint = trailingIconTint, contentDescription = "Clear")
-                }
-            } else {
-                Icon(
-                    imageVector = Icons.Filled.ArrowDropDown,
-                    tint = trailingIconTint,
-                    contentDescription = null,
-                    modifier = Modifier.rotate(if (showBottomSheet) 180f else 0f)
-                )
-            }
+            Icon(
+                imageVector = Icons.Filled.ArrowDropDown,
+                tint = trailingIconTint,
+                contentDescription = null,
+                modifier = Modifier.rotate(if (showBottomSheet) 180f else 0f)
+            )
         },
         isError = isError,
         enabled = enabled,

@@ -1,18 +1,19 @@
 package com.github.huangkl1024.composeform.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -24,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -99,28 +101,12 @@ fun <T> OutlinedSelect(
             singleLine = true,
             label = label,
             trailingIcon = {
-                if (expanded || showValue.isEmpty()) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowDropDown,
-                        tint = trailingIconTint,
-                        contentDescription = null,
-                        modifier = Modifier.rotate(if (expanded) 180f else 0f)
-                    )
-                } else {
-                    if (canCancel && enabled) {
-                        // 启用才显示取消按钮
-                        IconButton({
-                            onValueChange(null)
-                            expanded = false
-                        }) {
-                            Icon(
-                                Icons.Outlined.Cancel,
-                                tint = trailingIconTint,
-                                contentDescription = "Cancel value button"
-                            )
-                        }
-                    }
-                }
+                Icon(
+                    imageVector = Icons.Filled.ArrowDropDown,
+                    tint = trailingIconTint,
+                    contentDescription = null,
+                    modifier = Modifier.rotate(if (expanded) 180f else 0f)
+                )
             },
             colors = colors,
             isError = isError,
@@ -136,6 +122,7 @@ fun <T> OutlinedSelect(
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
+            shape = shape
         ) {
             if (options.isEmpty()) {
                 DropdownMenuItem(
@@ -143,7 +130,8 @@ fun <T> OutlinedSelect(
                         Surface(
                             Modifier
                                 .fillMaxWidth()
-                                .height(20.dp)) {
+                                .height(20.dp)
+                        ) {
                             emptyOptionsShow()
                         }
                     },
@@ -152,13 +140,29 @@ fun <T> OutlinedSelect(
                 )
             } else {
                 options.forEach { option ->
+                    val isSelected = option == value
                     DropdownMenuItem(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 48.dp)
+                            .clip(MaterialTheme.shapes.small)
+                            .background(
+                                color = if (isSelected) {
+                                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                                } else {
+                                    Color.Transparent
+                                }
+                            ),
                         text = {
                             renderOption(option)
                         },
                         onClick = {
                             expanded = false
-                            onValueChange(option)
+                            if (isSelected && canCancel) {
+                                onValueChange(null)
+                            } else {
+                                onValueChange(option)
+                            }
                             focusManager.clearFocus()
                         },
                         contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
