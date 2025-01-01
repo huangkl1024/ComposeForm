@@ -8,9 +8,12 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -22,7 +25,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextStyle
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -36,14 +41,23 @@ fun OutlinedDatePicker(
     value: LocalDate?,
     onValueChange: (LocalDate?) -> Unit,
     dateFormat: (LocalDate?) -> String,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    isError: Boolean = false,
-    supportingText: @Composable (() -> Unit)? = null,
-    label: @Composable (() -> Unit)? = null,
     confirmButtonText: String = "OK",
     dismissButtonText: String = "Cancel",
-    timeZone: TimeZone = TimeZone.UTC
+    timeZone: TimeZone = TimeZone.UTC,
+
+    // OutlinedFieldText props
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    textStyle: TextStyle = LocalTextStyle.current,
+    label: @Composable (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    prefix: @Composable (() -> Unit)? = null,
+    suffix: @Composable (() -> Unit)? = null,
+    supportingText: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    shape: Shape = OutlinedTextFieldDefaults.shape,
+    colors: TextFieldColors = OutlinedTextFieldDefaults.colors()
 ) {
     val focusRequester = FocusRequester()
     val focusManager = LocalFocusManager.current
@@ -130,6 +144,13 @@ fun OutlinedDatePicker(
                     showDatePickerDialog = true
                 }
             },
-        trailingIcon = trailingIcon
+        trailingIcon = trailingIcon,
+        leadingIcon = leadingIcon,
+        shape = shape,
+        colors = colors,
+        textStyle = textStyle,
+        placeholder = placeholder,
+        prefix = prefix,
+        suffix = suffix,
     )
 }

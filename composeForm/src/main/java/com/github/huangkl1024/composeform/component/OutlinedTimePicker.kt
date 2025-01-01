@@ -15,11 +15,14 @@ import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
@@ -32,7 +35,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -45,14 +50,23 @@ fun OutlinedTimePicker(
     value: LocalTime?,
     onValueChange: (LocalTime?) -> Unit,
     timeFormat: (LocalTime?) -> String,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    isError: Boolean = false,
-    supportingText: @Composable (() -> Unit)? = null,
-    label: @Composable (() -> Unit)? = null,
     is24Hour: Boolean = true,
     confirmButtonText: String = "OK",
-    dismissButtonText: String = "Cancel"
+    dismissButtonText: String = "Cancel",
+
+    // OutlinedFieldText props
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    textStyle: TextStyle = LocalTextStyle.current,
+    label: @Composable (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    prefix: @Composable (() -> Unit)? = null,
+    suffix: @Composable (() -> Unit)? = null,
+    supportingText: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    shape: Shape = OutlinedTextFieldDefaults.shape,
+    colors: TextFieldColors = OutlinedTextFieldDefaults.colors()
 ) {
     val focusRequester = FocusRequester()
     val focusManager = LocalFocusManager.current
@@ -123,7 +137,14 @@ fun OutlinedTimePicker(
                     showTimePickerDialog = true
                 }
             },
-        trailingIcon = trailingIcon
+        trailingIcon = trailingIcon,
+        leadingIcon = leadingIcon,
+        shape = shape,
+        colors = colors,
+        textStyle = textStyle,
+        placeholder = placeholder,
+        prefix = prefix,
+        suffix = suffix,
     )
 }
 
